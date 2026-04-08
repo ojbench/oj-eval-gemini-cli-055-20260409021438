@@ -163,20 +163,22 @@ public:
         if (ask_date < station_time[0])
             return "wait in departure station";
             
-        for (int i = 0; i < len; ++i) {
-            if (ask_date == station_time[i])
-                return "at " + station_name[i];
+        int l = 0, r = len - 1;
+        while (l <= r) {
+            int mid = l + (r - l) / 2;
+            if (station_time[mid] == ask_date)
+                return "at " + station_name[mid];
+            else if (station_time[mid] < ask_date)
+                l = mid + 1;
+            else
+                r = mid - 1;
         }
         
-        for (int i = 0; i < len - 1; ++i) {
-            if (station_time[i] < ask_date && ask_date < station_time[i + 1])
-                return "between " + station_name[i] + " and " + station_name[i + 1];
-        }
-        
-        if (station_time[len - 1] < ask_date && ask_date < arrive_date)
+        if (l < len) {
+            return "between " + station_name[l - 1] + " and " + station_name[l];
+        } else {
             return "wait in terminus station";
-            
-        return "";
+        }
     }
 
     virtual string type() override {
@@ -241,7 +243,7 @@ public:
             int used_days = (ask_date.year - send_date.year) * 360 + (ask_date.month - send_date.month) * 30 + (ask_date.day - send_date.day);
             int total_days = (arrive_date.year - send_date.year) * 360 + (arrive_date.month - send_date.month) * 30 + (arrive_date.day - send_date.day);
             double current_mile = (double)used_days / total_days * total_mile;
-            return to_string(current_mile);
+            return "at " + to_string(current_mile);
         } else {
             return "already arrive";
         }
